@@ -6,11 +6,11 @@
 
 ## 实现效果  
 - 作业1： 推导  
-![推导结果](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L4/pic/formula.jpg "推导结果")
+![推导结果](./pic/formula.jpg "推导结果")
 
 
 - 作业2： coding   
-![运行结果](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L4/pic/result.jpg "算法运行结果")
+![运行结果](./pic/result.jpg "算法运行结果")
 
 
 ## 所遇问题

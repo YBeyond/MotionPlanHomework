@@ -15,15 +15,15 @@
 
 4. 回溯，获取路径  
 
-![算法流程图](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L2/pic/%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.png "算法流程图")
+![算法流程图](./pic/flowchart.png "算法流程图")
 
 ## 运行结果对比
 下图展示不同启发函数和是否使用Tie Braker的运行结果。
 
-![运行效果对比](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L2/pic/%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C%E5%AF%B9%E6%AF%94.jpg "不同启发函数和是否使用TieBraker的运行结果对比")
+![运行效果对比](./pic/result.jpg "不同启发函数和是否使用TieBraker的运行结果对比")
 
 ## 问题
 1.在编译运行时，发现程序在开启首次运行时存在崩溃现象，后发现terminatePtr在初始化时并不是默认的nullptr，后在类中将terminatePtr初始化为nullptr  
 2.在调试查看结果时，发现如图所示的情况下，节点m依然会被扩展为n的邻近节点，且路径有可能从n指向m。原因为在考虑节点扩展时，把节点认为是质点。如果要处理该情况，可以考虑节点扩展方向和m节点的邻域连通情况，从而剔除这种不合理的扩展。
 
-![节点扩展](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L2/pic/%E8%8A%82%E7%82%B9%E6%89%A9%E5%B1%95.png "异常节点扩展情况")
+![节点扩展](./pic/node_extented.png "异常节点扩展情况")

@@ -16,6 +16,6 @@
 #define use_informed_RRTstar 1  // 启用Informd采样
 ```
 算法运行结果如下：  
-![运行结果](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L3/pic/result.jpg "两种算法运行结果")
+![运行结果](./pic/result.jpg "两种算法运行结果")
 ## 所遇问题
 - Informed RRT*从2D扩展到3D时，从椭圆扩展到椭球进行均匀采样，具体的内容参考[这篇文章](https://www.zhihu.com/question/268718682/answer/471626663) 

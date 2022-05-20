@@ -47,7 +47,7 @@ $$
 
 ## 实现效果
 目前代码还存在bug...
-![运行结果](https://gitee.com/lxyclara/motion-plan-homework/raw/lxy/L5/pic/result.jpg "算法运行结果")
+![运行结果](./pic/result.jpg "算法运行结果")
 
 
 

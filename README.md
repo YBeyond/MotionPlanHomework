@@ -44,5 +44,7 @@
 作业源码：source-L8  
 作业说明文档：homework-L8
 
+### 课程大作业
 
-
+作业源码：[source-project](./project/src/trajectory_generator/src)  
+作业说明文档：[homework-project](./project/homework.md)

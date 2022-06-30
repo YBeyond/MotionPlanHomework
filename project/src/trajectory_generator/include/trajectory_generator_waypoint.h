@@ -20,6 +20,15 @@ public:
 
         ~TrajectoryGeneratorWaypoint();
 
+        double GetFactorial(const int N, const int D);
+        Eigen::MatrixXd PolyQPGenerationNumeric(
+                                const int tOrder,       
+                                const int cOrder,    
+                                const Eigen::VectorXd &Pos,
+                                const Eigen::VectorXd &Vel,
+                                const Eigen::VectorXd &Acc,
+                                const Eigen::VectorXd &Time );
+
         Eigen::MatrixXd PolyQPGeneration(
             const int order,
             const Eigen::MatrixXd &Path,

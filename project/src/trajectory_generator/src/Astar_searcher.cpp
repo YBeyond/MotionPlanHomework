@@ -1,8 +1,11 @@
 #include "Astar_searcher.h"
 #include "node.h"
 #include <Eigen/src/Core/Matrix.h>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
+#include <ros/assert.h>
+
 
 using namespace std;
 using namespace Eigen;
@@ -183,8 +186,7 @@ double AstarPathFinder::getHeu(GridNodePtr node1, GridNodePtr node2) {
   double dy = fabs(node1->coord.y() - node2->coord.y());
   double dz = fabs(node1->coord.z() - node2->coord.z());
 
-  h = dx + dy + dz + (sqrt(3) - 3) * fmin(dx,fmin(dy,dz))
-                    + (sqrt(2) - 2) * fmax(dx, fmax(dy,dz));
+  h = sqrt(dx * dx + dy * dy + dz * dz);
 
   double kTieBreaker = 0.1;
 
@@ -256,7 +258,8 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
         if( currentPtr->index == goalIdx ){
             ros::Time time_2 = ros::Time::now();
             terminatePtr = currentPtr;
-            ROS_WARN("[A*]{sucess}  Time in A*  is %f ms, path cost if %f m", (time_2 - time_1).toSec() * 1000.0, currentPtr->gScore * resolution );            
+            ROS_INFO("inside function");
+            ROS_INFO("[A*]{sucess}  Time in A*  is %f ms, path cost if %f m", (time_2 - time_1).toSec() * 1000.0, currentPtr->gScore * resolution );            
             return;
         }
         //get the succetion
@@ -344,40 +347,50 @@ vector<Vector3d> AstarPathFinder::getPath() {
 
 vector<Vector3d> AstarPathFinder::pathSimplify(const vector<Vector3d> &path,
                                                double path_resolution) {
+  // implement the RDP algorithm
+  ROS_INFO("in function pathSimplify - init");
+
   vector<Vector3d> subPath;
-  /**
-   *
-   * STEP 2.1:  implement the RDP algorithm
-   * **/
-  auto start_iter = path.begin();
-  auto inter_iter = path.end();
   subPath.clear();
+  if(path.empty()) return subPath;
   subPath.push_back(path.front());
 
-  double max_distance_threshold = path_resolution * 2.0; // !搜索步长相关
-  while (start_iter != path.end()) {
+  auto start_iter = path.begin();
+  auto inter_iter = path.end() - 1;
+  std::cout << "start pt before while loop:" << *start_iter << std::endl;
+  std::cout << "inter pt before while loop:" << *inter_iter << std::endl;
     
+  double max_distance_threshold = path_resolution * 2.0; // !搜索步长相关
+  while (start_iter != inter_iter) {
     Vector3d vec_b = *start_iter - *inter_iter;
+    
     double segment_length = vec_b.norm();
     segment_length =
         segment_length < 1e-6 ? 0.00001 : segment_length; // 避免被除数为0
+    
+    ROS_INFO("segment_length : %f",segment_length);
     bool isfound = false;
-    for (auto it = start_iter+1; it != inter_iter; it++) {
+    for (auto it = start_iter; it != inter_iter; it++) {
       Vector3d vec_a = *it - *start_iter;
+      // if (vec_a.norm() < 0.001) continue;
       double area = vec_b.cross(vec_a).norm();
       double vertical_dist = area / segment_length;
+      ROS_INFO("area : %f , vertical_dist : %f ",segment_length,vertical_dist);
       if (vertical_dist > max_distance_threshold) {
         inter_iter = it;
         isfound = true;
         break;
         }
     }
+    std::cout << "start pt :" << *start_iter << std::endl;
+    std::cout << "inter pt :" << *inter_iter << std::endl;
     if (!isfound) {
       subPath.push_back(*inter_iter);
       start_iter = inter_iter;
+      inter_iter = path.end()-1;
     }
   }
-  
+  ROS_INFO("subPath size : %d", subPath.size());
   return subPath;
 }
 
@@ -405,9 +418,19 @@ int AstarPathFinder::safeCheck(MatrixXd polyCoeff, VectorXd time) {
   int unsafe_segment = -1; //-1 -> the whole trajectory is safe
   /**
    *
-   * STEP 3.3:  finish the sareCheck()
+   * STEP 3.3:  finish the safeCheck()
    *
    * **/
+  for (int k = 0; k < time.size(); ++k) {
+    for (double t = 0; t <= time[k]; t += 0.1) {
+      auto pos = getPosPoly(polyCoeff, k, t);  // 无人机不能只当作一个质点
+      if (isOccupied(coord2gridIndex(pos))) {
+        unsafe_segment = k;
+        break;
+      }
+    }
+  }
+  
 
   return unsafe_segment;
 }

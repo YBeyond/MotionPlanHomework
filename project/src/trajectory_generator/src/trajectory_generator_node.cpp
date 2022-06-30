@@ -12,6 +12,7 @@
 #include <quadrotor_msgs/PolynomialTrajectory.h>
 #include <random>
 #include <ros/console.h>
+#include <ros/param.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <string>
@@ -243,7 +244,17 @@ bool trajGeneration() {
    * STEP 2:  Simplify the path: use the RDP algorithm
    *
    * **/
+  for (int i = 0; i < grid_path.size(); ++i) {
+    auto pt = grid_path.at(i);
+    ROS_INFO("A* search path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
+    }
   grid_path = _astar_path_finder->pathSimplify(grid_path, _path_resolution);
+  ROS_INFO("after simplify");
+  for (int i = 0; i < grid_path.size(); ++i) {
+    auto pt = grid_path.at(i);
+    ROS_INFO("simplify path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
+    }
+
   MatrixXd path(int(grid_path.size()), 3); // 每一行为一个路径点
   for (int k = 0; k < int(grid_path.size()); k++) {
     path.row(k) = grid_path[k];
@@ -312,6 +323,26 @@ void trajOptimization(Eigen::MatrixXd path) {
      * part 3.5
      *
      * **/
+    Eigen::MatrixXd new_path =
+        Eigen::MatrixXd::Zero(repath.rows() + 1, repath.cols());
+    new_path.block(0, 0, unsafe_segment + 1, repath.cols()) =
+        repath.block(0, 0, unsafe_segment + 1, repath.cols());
+    new_path.block(unsafe_segment + 2, 0, repath.rows() - unsafe_segment - 1,
+                   repath.cols()) =
+        repath.block(unsafe_segment + 1, 0, repath.rows() - unsafe_segment - 1,
+                     repath.cols());
+    new_path.row(unsafe_segment + 1) =
+        (new_path.row(unsafe_segment) + new_path.row(unsafe_segment + 2)) / 2.0;
+    _polyTime = timeAllocation(path);
+     _polyCoeff =
+      _trajGene->PolyQPGeneration(_dev_order, path, vel, acc, _polyTime);
+     unsafe_segment = _astar_path_finder->safeCheck(_polyCoeff, _polyTime);
+     repath = path;
+     count++;
+     if (count > 10) break;
+     
+    
+    
   }
   // visulize path and trajectory
   visPath(repath);
@@ -334,7 +365,7 @@ void trajPublish(MatrixXd polyCoeff, VectorXd time) {
 
   traj_msg.header.seq = count;
   traj_msg.header.stamp = ros::Time::now();
-  traj_msg.header.frame_id = std::string("/world");
+  traj_msg.header.frame_id = std::string("world");
   traj_msg.trajectory_id = count;
   traj_msg.action = quadrotor_msgs::PolynomialTrajectory::ACTION_ADD;
 
@@ -421,7 +452,7 @@ void visTrajectory(MatrixXd polyCoeff, VectorXd time) {
   visualization_msgs::Marker _traj_vis;
 
   _traj_vis.header.stamp = ros::Time::now();
-  _traj_vis.header.frame_id = "/world";
+  _traj_vis.header.frame_id = "world";
 
   _traj_vis.ns = "traj_node/trajectory";
   _traj_vis.id = 0;

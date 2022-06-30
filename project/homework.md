@@ -29,7 +29,9 @@ Armadillo是基于C++的高质量线性代数库（矩阵数学），旨在在�
 
 # trajectory_generator_node运行流程图
 
-![流程图](./pic/flowchart_project.png)
+<p align="center">
+    <img src="./pic/flowchart_project.png" width="450"/>
+</p>
 
 
 

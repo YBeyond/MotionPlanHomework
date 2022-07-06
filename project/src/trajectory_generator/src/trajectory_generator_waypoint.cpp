@@ -55,7 +55,6 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGenerationNumeric(
     const Eigen::VectorXd &Acc,
     const Eigen::VectorXd &Time
 ) {
-    ROS_INFO("inside osqp");
     // num. of polynomial coeffs:
     const auto N = (cOrder + 1) << 1;  // [cOrder]阶连续，取值为3时，为7阶多项式，8个系数
     // num. of trajectory segments:
@@ -123,7 +122,7 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGenerationNumeric(
 
         for (int m = tOrder; m < N; ++m) {
             for (int n = tOrder; n < N; ++n) {
-                PTriplets.emplace_back(
+                    PTriplets.emplace_back(
                     currentSegmentIdxOffset + m,
                     currentSegmentIdxOffset + n,
                     Time(k)*PFactorial[m]*PFactorial[n]/(
@@ -297,7 +296,6 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGenerationNumeric(
         // defaults to Eigen::MatrixXd::Zero():
         ROS_WARN("[Minimum Snap, Numeric]: Failed to init OSQP solver.");
     }
-    ROS_INFO("end of osqp");
     // done:
     return result;
 }
@@ -324,7 +322,8 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGeneration(
    * trajectory
    *
    * **/
-
+   std::cout << "Vel Info : \n" << Vel << std::endl;
+   std::cout << "Acc Info : \n" << Acc << std::endl;
   // 使用osqp求解
   ROS_INFO("d_order : %d,p_num1d : %d,m : %d, path(%d,%d),vel(%d,%d),acc(%d,%d)", d_order,p_num1d, m, Path.rows(),
            Path.cols(), Vel.rows(), Vel.cols(), Acc.rows(), Acc.cols());
@@ -336,6 +335,12 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGeneration(
 
   return PolyCoeff;
 }
+
+/**
+ * @brief 获取目标函数的代价
+ * 
+ * @return double 
+ */
 
 double TrajectoryGeneratorWaypoint::getObjective() {
   _qp_cost = (_Px.transpose() * _Q * _Px + _Py.transpose() * _Q * _Py +

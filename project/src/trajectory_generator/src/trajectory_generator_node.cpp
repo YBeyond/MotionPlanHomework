@@ -190,6 +190,7 @@ void execCallback(const ros::TimerEvent &e) {
   }
 }
 
+// 接收目标点
 void rcvWaypointsCallBack(const nav_msgs::Path &wp) {
   if (wp.poses[0].pose.position.z < 0.0)
     return;
@@ -234,6 +235,7 @@ bool trajGeneration() {
    * STEP 1:  search the path and get the path
    *
    * **/
+   ROS_INFO("trajectory generate here");
   _astar_path_finder->AstarGraphSearch(start_pt, target_pt);
   auto grid_path = _astar_path_finder->getPath();
 
@@ -244,16 +246,19 @@ bool trajGeneration() {
    * STEP 2:  Simplify the path: use the RDP algorithm
    *
    * **/
-  for (int i = 0; i < grid_path.size(); ++i) {
-    auto pt = grid_path.at(i);
-    ROS_INFO("A* search path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
-    }
+   ROS_INFO("search path size : %d",grid_path.size());
+  // for (int i = 0; i < grid_path.size(); ++i) {
+  //   auto pt = grid_path.at(i);
+  //   ROS_INFO("A* search path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
+  //   }
+
   grid_path = _astar_path_finder->pathSimplify(grid_path, _path_resolution);
-  ROS_INFO("after simplify");
-  for (int i = 0; i < grid_path.size(); ++i) {
-    auto pt = grid_path.at(i);
-    ROS_INFO("simplify path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
-    }
+
+  ROS_INFO("simplify path size : %d",static_cast<int>(grid_path.size()));
+  // for (int i = 0; i < grid_path.size(); ++i) {
+  //   auto pt = grid_path.at(i);
+  //   ROS_INFO("simplify path @ %d (%f,%f,%f)",i,pt.x(),pt.y(),pt.z());
+  //   }
 
   MatrixXd path(int(grid_path.size()), 3); // 每一行为一个路径点
   for (int k = 0; k < int(grid_path.size()); k++) {
@@ -281,6 +286,8 @@ bool trajGeneration() {
 
 void trajOptimization(Eigen::MatrixXd path) {
   // if( !has_odom ) return;
+
+  if (path.size() < 2) return;
   MatrixXd vel = MatrixXd::Zero(2, 3);
   MatrixXd acc = MatrixXd::Zero(2, 3);
 
@@ -341,8 +348,6 @@ void trajOptimization(Eigen::MatrixXd path) {
      count++;
      if (count > 10) break;
      
-    
-    
   }
   // visulize path and trajectory
   visPath(repath);
@@ -481,6 +486,7 @@ void visTrajectory(MatrixXd polyCoeff, VectorXd time) {
       pt.x = pos(0);
       pt.y = pos(1);
       pt.z = pos(2);
+      // ROS_INFO("visual trajectory @segment : %d, @time : %f is (%f,%f,%f)", i,t,pt.x,pt.y,pt.z);
       _traj_vis.points.push_back(pt);
     }
   }
@@ -514,7 +520,7 @@ void visPath(MatrixXd nodes) {
     p.x = nodes(i, 0);
     p.y = nodes(i, 1);
     p.z = nodes(i, 2);
-
+    // ROS_INFO("visual path @ %d is (%f,%f,%f)",i,p.x,p.y,p.z);
     points.points.push_back(p);
   }
   _path_vis_pub.publish(points);

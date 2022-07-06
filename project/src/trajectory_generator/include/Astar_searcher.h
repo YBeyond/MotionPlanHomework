@@ -1,10 +1,12 @@
 #ifndef _ASTART_SEARCHER_H
 #define _ASTART_SEARCHER_H
 
+#include <array>
 #include <iostream>
 #include <ros/ros.h>
 #include <ros/console.h>
 #include <Eigen/Eigen>
+#include <vector>
 #include "backward.hpp"
 #include "node.h"
 
@@ -25,6 +27,9 @@ class AstarPathFinder
 
 		GridNodePtr terminatePtr;
 		std::multimap<double, GridNodePtr> openSet;
+
+		std::vector<Eigen::Vector3i> expand_directions;
+		std::vector<double> expand_costs;
 
 		double getHeu(GridNodePtr node1, GridNodePtr node2);
 		void AstarGetSucc(GridNodePtr currentPtr, std::vector<GridNodePtr> & neighborPtrSets, std::vector<double> & edgeCostSets);		

@@ -112,7 +112,7 @@ void rcvGlobalPointCloudCallBack(const sensor_msgs::PointCloud2 &pointcloud_map)
 
     pcl::toROSMsg(cloud_vis, map_vis);
 
-    map_vis.header.frame_id = "/world";
+    map_vis.header.frame_id = "world";
     global_map_vis_pub.publish(map_vis);
 }
 
@@ -167,7 +167,7 @@ void rcvGlobalGroundPointCloudCallBack(const sensor_msgs::PointCloud2 &pointclou
 
     pcl::toROSMsg(cloud_vis, map_vis);
 
-    map_vis.header.frame_id = "/world";
+    map_vis.header.frame_id = "world";
     global_ground_vis_pub.publish(map_vis);
 }
 

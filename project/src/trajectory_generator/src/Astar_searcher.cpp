@@ -154,6 +154,32 @@ inline void AstarPathFinder::AstarGetSucc(GridNodePtr currentPtr,
   neighborPtrSets.clear();
   edgeCostSets.clear();
   Vector3i neighborIdx;
+  // expand_directions = {{-1, -1, -1}, {-1, -1, 0}, {-1, -1, 1}, {-1, 0, -1}, 
+  // {-1, 0, 0}, {-1, 0, 1}, {-1, 1, -1}, {-1, 1, 0}, {-1, 1, 1}, {0, -1, -1}, 
+  // {0, -1, 0}, {0, -1, 1}, {0, 0, -1}, {0, 0, 1}, {0, 1, -1}, {0, 1, 0}, 
+  // {0, 1, 1}, {1, -1, -1}, {1, -1, 0}, {1, -1, 1}, {1, 0, -1}, {1, 0, 0}, 
+  // {1, 0, 1}, {1, 1, -1}, {1, 1, 0}, {1, 1, 1}};
+  // expand_costs = {1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732,
+	// 								   1.414, 1, 1.414, 1, 1, 1.414, 1, 1.414,
+	// 								   1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732};
+  
+  // for(int i = 0; i < expand_directions.size(); ++i)
+  // {
+  //   neighborIdx = currentPtr->index + expand_directions[i];
+  //   if (neighborIdx(0) < 0 || neighborIdx(0) >= GLX_SIZE ||
+  //       neighborIdx(1) < 0 || neighborIdx(1) >= GLY_SIZE ||
+  //       neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
+  //     continue;
+  //   }
+  //   if (isOccupied(neighborIdx))
+  //     continue;
+  //   neighborPtrSets.push_back(
+  //       GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
+  //   edgeCostSets.push_back(expand_costs[i]);
+  // }
+
+ 
+
   for (int dx = -1; dx < 2; dx++) {
     for (int dy = -1; dy < 2; dy++) {
       for (int dz = -1; dz < 2; dz++) {
@@ -170,6 +196,7 @@ inline void AstarPathFinder::AstarGetSucc(GridNodePtr currentPtr,
             neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
           continue;
         }
+        if (isOccupied(dx,dy,dz)) continue;
 
         neighborPtrSets.push_back(
             GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
@@ -248,23 +275,21 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
    * **/
   while (!openSet.empty()) {
 
+
     auto iter = openSet.begin(); 
         currentPtr = (*iter).second;
         currentPtr->id = -1;
         openSet.erase((*iter).first);
 
-
         // if the current node is the goal 
         if( currentPtr->index == goalIdx ){
             ros::Time time_2 = ros::Time::now();
             terminatePtr = currentPtr;
-            ROS_INFO("inside function");
             ROS_INFO("[A*]{sucess}  Time in A*  is %f ms, path cost if %f m", (time_2 - time_1).toSec() * 1000.0, currentPtr->gScore * resolution );            
             return;
         }
         //get the succetion
-        AstarGetSucc(currentPtr, neighborPtrSets, edgeCostSets);  
-
+        AstarGetSucc(currentPtr, neighborPtrSets, edgeCostSets);
         for(int i = 0; i < (int)neighborPtrSets.size(); i++){
             /*
             *
@@ -352,7 +377,7 @@ vector<Vector3d> AstarPathFinder::pathSimplify(const vector<Vector3d> &path,
 
   vector<Vector3d> subPath;
   subPath.clear();
-  if(path.empty()) return subPath;
+  if(path.size() < 2) return subPath;
   subPath.push_back(path.front());
 
   auto start_iter = path.begin();

@@ -157,7 +157,6 @@ void execCallback(const ros::TimerEvent &e) {
     double t_cur = (time_now - time_traj_start).toSec();
     double t_replan = ros::Duration(1, 0).toSec();
     t_cur = min(time_duration, t_cur);
-    ROS_INFO("t_cur : %f, time duration : %f", t_cur, time_duration);
     if (t_cur > time_duration - 1e-2) {
       has_target = false;
       changeState(WAIT_TARGET, "STATE");
@@ -178,11 +177,9 @@ void execCallback(const ros::TimerEvent &e) {
     double t_cur = (time_now - time_traj_start).toSec();
     double t_delta = ros::Duration(0, 50).toSec();
     t_cur = t_delta + t_cur;
-    ROS_INFO("t_cur : %f , t_delta : %f ", t_cur, t_delta);
     start_pt = getPos(t_cur);
     start_vel = getVel(t_cur);
-    std::cout << "start pt : \n" << start_pt << std::endl;
-    std::cout << "start vel : \n" << start_vel << std::endl; 
+
 
     bool success = trajGeneration();
     if (success)
@@ -276,6 +273,7 @@ bool trajGeneration() {
    * **/
   trajOptimization(path);
   time_duration = _polyTime.sum();
+  _astar_path_finder->resetUsedGrids();
 
   // Publish the trajectory
   trajPublish(_polyCoeff, _polyTime);

@@ -255,7 +255,6 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
   // currentPtr represents the node with lowest f(n) in the open_list
   GridNodePtr currentPtr = NULL;
   GridNodePtr neighborPtr = NULL;
-
   // put start node in open set
   startPtr->gScore = 0;
   /**
@@ -319,7 +318,6 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
             double gScore = currentPtr->gScore + edgeCostSets.at(i);
             double hScore = getHeu(neighborPtr, endPtr);
             double fScore = gScore + hScore;
-
             if(neighborPtr -> id == 0){ //discover a new node, which is not in the closed set and open set
 
                 neighborPtr->gScore = gScore;
@@ -327,7 +325,6 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
                 neighborPtr->id = 1; // OPEN set
                 neighborPtr->cameFrom = currentPtr;
                 openSet.insert(std::make_pair(neighborPtr->fScore,neighborPtr));
-                
                 continue;
             }
             else if(neighborPtr->id == 1){ //this node is in open set and need to judge if it needs to update, the "0" should be deleted when you are coding
@@ -339,11 +336,9 @@ void AstarPathFinder::AstarGraphSearch(Vector3d start_pt, Vector3d end_pt) {
                     neighborPtr->cameFrom = currentPtr;
                     openSet.insert(std::make_pair(neighborPtr->fScore,neighborPtr)); 
                 }
-
                 continue;
             }
             else{//this node is in closed set
-
                 continue;
             }
         }
@@ -368,6 +363,7 @@ vector<Vector3d> AstarPathFinder::getPath() {
    * STEP 1.4:  trace back the found path
    *
    * **/
+   ROS_INFO("In function getPath");
     path.clear();
 
     while (terminatePtr)

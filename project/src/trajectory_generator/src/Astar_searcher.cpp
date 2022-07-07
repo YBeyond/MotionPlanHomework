@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <ros/assert.h>
+#include <vector>
 
 
 using namespace std;
@@ -154,56 +155,68 @@ inline void AstarPathFinder::AstarGetSucc(GridNodePtr currentPtr,
   neighborPtrSets.clear();
   edgeCostSets.clear();
   Vector3i neighborIdx;
-  // expand_directions = {{-1, -1, -1}, {-1, -1, 0}, {-1, -1, 1}, {-1, 0, -1}, 
-  // {-1, 0, 0}, {-1, 0, 1}, {-1, 1, -1}, {-1, 1, 0}, {-1, 1, 1}, {0, -1, -1}, 
-  // {0, -1, 0}, {0, -1, 1}, {0, 0, -1}, {0, 0, 1}, {0, 1, -1}, {0, 1, 0}, 
-  // {0, 1, 1}, {1, -1, -1}, {1, -1, 0}, {1, -1, 1}, {1, 0, -1}, {1, 0, 0}, 
-  // {1, 0, 1}, {1, 1, -1}, {1, 1, 0}, {1, 1, 1}};
-  // expand_costs = {1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732,
-	// 								   1.414, 1, 1.414, 1, 1, 1.414, 1, 1.414,
-	// 								   1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732};
+  expand_directions = {{-1, -1, -1}, {-1, -1, 0}, {-1, -1, 1}, {-1, 0, -1}, 
+  {-1, 0, 0}, {-1, 0, 1}, {-1, 1, -1}, {-1, 1, 0}, {-1, 1, 1}, {0, -1, -1}, 
+  {0, -1, 0}, {0, -1, 1}, {0, 0, -1}, {0, 0, 1}, {0, 1, -1}, {0, 1, 0}, 
+  {0, 1, 1}, {1, -1, -1}, {1, -1, 0}, {1, -1, 1}, {1, 0, -1}, {1, 0, 0}, 
+  {1, 0, 1}, {1, 1, -1}, {1, 1, 0}, {1, 1, 1}};
+  expand_costs = {1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732,
+									   1.414, 1, 1.414, 1, 1, 1.414, 1, 1.414,
+									   1.732, 1.414, 1.732, 1.414, 1, 1.414, 1.732, 1.414, 1.732};
+  expand_obstacles = {{-1,1,0},{1,1,0},{-1,-1,0},{1,-1,0}};
   
-  // for(int i = 0; i < expand_directions.size(); ++i)
-  // {
-  //   neighborIdx = currentPtr->index + expand_directions[i];
-  //   if (neighborIdx(0) < 0 || neighborIdx(0) >= GLX_SIZE ||
-  //       neighborIdx(1) < 0 || neighborIdx(1) >= GLY_SIZE ||
-  //       neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
-  //     continue;
-  //   }
-  //   if (isOccupied(neighborIdx))
-  //     continue;
-  //   neighborPtrSets.push_back(
-  //       GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
-  //   edgeCostSets.push_back(expand_costs[i]);
-  // }
+  for(int i = 0; i < expand_directions.size(); ++i)
+  {
+    neighborIdx = currentPtr->index + expand_directions[i];
+    if (neighborIdx(0) < 0 || neighborIdx(0) >= GLX_SIZE ||
+        neighborIdx(1) < 0 || neighborIdx(1) >= GLY_SIZE ||
+        neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
+      continue;
+    }
+    if (isOccupied(neighborIdx))
+      continue;
+    bool is_collison = false;
+    for(auto &coner:expand_obstacles)
+    {
+      if(isOccupied(neighborIdx+coner)) 
+      {
+        is_collison = true;
+        break;
+      }
+    }
+    if (is_collison) continue;
+
+    neighborPtrSets.push_back(
+        GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
+    edgeCostSets.push_back(expand_costs[i]);
+  }
 
  
 
-  for (int dx = -1; dx < 2; dx++) {
-    for (int dy = -1; dy < 2; dy++) {
-      for (int dz = -1; dz < 2; dz++) {
+  // for (int dx = -1; dx < 2; dx++) {
+  //   for (int dy = -1; dy < 2; dy++) {
+  //     for (int dz = -1; dz < 2; dz++) {
 
-        if (dx == 0 && dy == 0 && dz == 0)
-          continue;
+  //       if (dx == 0 && dy == 0 && dz == 0)
+  //         continue;
 
-        neighborIdx(0) = (currentPtr->index)(0) + dx;
-        neighborIdx(1) = (currentPtr->index)(1) + dy;
-        neighborIdx(2) = (currentPtr->index)(2) + dz;
+  //       neighborIdx(0) = (currentPtr->index)(0) + dx;
+  //       neighborIdx(1) = (currentPtr->index)(1) + dy;
+  //       neighborIdx(2) = (currentPtr->index)(2) + dz;
 
-        if (neighborIdx(0) < 0 || neighborIdx(0) >= GLX_SIZE ||
-            neighborIdx(1) < 0 || neighborIdx(1) >= GLY_SIZE ||
-            neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
-          continue;
-        }
-        if (isOccupied(dx,dy,dz)) continue;
+  //       if (neighborIdx(0) < 0 || neighborIdx(0) >= GLX_SIZE ||
+  //           neighborIdx(1) < 0 || neighborIdx(1) >= GLY_SIZE ||
+  //           neighborIdx(2) < 0 || neighborIdx(2) >= GLZ_SIZE) {
+  //         continue;
+  //       }
+  //       if (isOccupied(dx,dy,dz)) continue;
 
-        neighborPtrSets.push_back(
-            GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
-        edgeCostSets.push_back(sqrt(dx * dx + dy * dy + dz * dz));
-      }
-    }
-  }
+  //       neighborPtrSets.push_back(
+  //           GridNodeMap[neighborIdx(0)][neighborIdx(1)][neighborIdx(2)]);
+  //       edgeCostSets.push_back(sqrt(dx * dx + dy * dy + dz * dz));
+  //     }
+  //   }
+  // }
 }
 
 double AstarPathFinder::getHeu(GridNodePtr node1, GridNodePtr node2) {
@@ -382,8 +395,8 @@ vector<Vector3d> AstarPathFinder::pathSimplify(const vector<Vector3d> &path,
 
   auto start_iter = path.begin();
   auto inter_iter = path.end() - 1;
-  std::cout << "start pt before while loop:" << *start_iter << std::endl;
-  std::cout << "inter pt before while loop:" << *inter_iter << std::endl;
+  // std::cout << "start pt before while loop:" << *start_iter << std::endl;
+  // std::cout << "inter pt before while loop:" << *inter_iter << std::endl;
     
   double max_distance_threshold = path_resolution * 2.0; // !搜索步长相关
   while (start_iter != inter_iter) {
@@ -393,22 +406,22 @@ vector<Vector3d> AstarPathFinder::pathSimplify(const vector<Vector3d> &path,
     segment_length =
         segment_length < 1e-6 ? 0.00001 : segment_length; // 避免被除数为0
     
-    ROS_INFO("segment_length : %f",segment_length);
+    // ROS_INFO("segment_length : %f",segment_length);
     bool isfound = false;
     for (auto it = start_iter; it != inter_iter; it++) {
       Vector3d vec_a = *it - *start_iter;
       // if (vec_a.norm() < 0.001) continue;
       double area = vec_b.cross(vec_a).norm();
       double vertical_dist = area / segment_length;
-      ROS_INFO("area : %f , vertical_dist : %f ",segment_length,vertical_dist);
+      // ROS_INFO("area : %f , vertical_dist : %f ",segment_length,vertical_dist);
       if (vertical_dist > max_distance_threshold) {
         inter_iter = it;
         isfound = true;
         break;
         }
     }
-    std::cout << "start pt :" << *start_iter << std::endl;
-    std::cout << "inter pt :" << *inter_iter << std::endl;
+    // std::cout << "start pt :" << *start_iter << std::endl;
+    // std::cout << "inter pt :" << *inter_iter << std::endl;
     if (!isfound) {
       subPath.push_back(*inter_iter);
       start_iter = inter_iter;

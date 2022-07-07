@@ -30,6 +30,7 @@ class AstarPathFinder
 
 		std::vector<Eigen::Vector3i> expand_directions;
 		std::vector<double> expand_costs;
+		std::vector<Eigen::Vector3i> expand_obstacles;
 
 		double getHeu(GridNodePtr node1, GridNodePtr node2);
 		void AstarGetSucc(GridNodePtr currentPtr, std::vector<GridNodePtr> & neighborPtrSets, std::vector<double> & edgeCostSets);		

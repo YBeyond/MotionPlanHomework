@@ -322,11 +322,11 @@ Eigen::MatrixXd TrajectoryGeneratorWaypoint::PolyQPGeneration(
    * trajectory
    *
    * **/
-   std::cout << "Vel Info : \n" << Vel << std::endl;
-   std::cout << "Acc Info : \n" << Acc << std::endl;
+//    std::cout << "Vel Info : \n" << Vel << std::endl;
+//    std::cout << "Acc Info : \n" << Acc << std::endl;
   // 使用osqp求解
-  ROS_INFO("d_order : %d,p_num1d : %d,m : %d, path(%d,%d),vel(%d,%d),acc(%d,%d)", d_order,p_num1d, m, Path.rows(),
-           Path.cols(), Vel.rows(), Vel.cols(), Acc.rows(), Acc.cols());
+//   ROS_INFO("d_order : %d,p_num1d : %d,m : %d, path(%d,%d),vel(%d,%d),acc(%d,%d)", d_order,p_num1d, m, Path.rows(),
+//            Path.cols(), Vel.rows(), Vel.cols(), Acc.rows(), Acc.cols());
   
   for (int i = 0; i < Path.cols(); ++i) {
     PolyCoeff.block(0, i * p_num1d, m, p_num1d) =
